@@ -1,30 +1,5 @@
 import { MapPin, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Fix for default marker icon issue with Vite/Webpack bundlers
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
-
-// Custom sensor marker icon
-const sensorIcon = new L.DivIcon({
-  className: 'custom-sensor-marker',
-  html: `<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg border-2 border-background">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-foreground">
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-      <circle cx="12" cy="10" r="3"/>
-    </svg>
-  </div>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
 
 interface MapPanelProps {
   lat: number;
@@ -51,40 +26,25 @@ export const MapPanel = ({ lat, lng }: MapPanelProps) => {
         </Button>
       </div>
 
-      {/* Interactive Leaflet Map */}
-      <div className="relative rounded-lg overflow-hidden h-48">
-        <MapContainer
-          center={[lat, lng]}
-          zoom={14}
-          scrollWheelZoom={true}
-          className="h-full w-full z-0"
-          zoomControl={true}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[lat, lng]} icon={sensorIcon}>
-            <Popup>
-              <div className="text-center p-1">
-                <p className="font-semibold text-sm">Sensor Station #12</p>
-                <p className="text-xs text-muted-foreground">
-                  {lat.toFixed(6)}°N, {lng.toFixed(6)}°E
-                </p>
+      {/* Static Map Placeholder */}
+      <div className="relative rounded-lg overflow-hidden bg-muted h-48">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{
+            backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-l+0ea5e9(${lng},${lat})/${lng},${lat},12,0/400x200@2x?access_token=pk.placeholder)`,
+          }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background/80 to-transparent">
+          <div className="text-center p-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/90 shadow-lg">
+              <MapPin className="h-5 w-5 text-gps animate-float" />
+              <div className="text-left">
+                <p className="font-mono text-sm font-medium">{lat.toFixed(6)}°N</p>
+                <p className="font-mono text-sm font-medium">{lng.toFixed(6)}°E</p>
               </div>
-            </Popup>
-          </Marker>
-          <Circle
-            center={[lat, lng]}
-            radius={500}
-            pathOptions={{
-              color: 'hsl(var(--primary))',
-              fillColor: 'hsl(var(--primary))',
-              fillOpacity: 0.1,
-              weight: 2,
-            }}
-          />
-        </MapContainer>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Location Details */}
