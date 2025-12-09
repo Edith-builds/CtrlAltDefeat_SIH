@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CommandSidebarProps {
   isOpen: boolean;
@@ -56,18 +57,30 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
   const sendCommand = async (command: string, payload: Record<string, unknown>) => {
     setIsSending(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log('Sending command:', { command, payload });
-    
-    toast({
-      title: 'Command Sent',
-      description: `${command.replace(/_/g, ' ')} command has been sent to the sensor.`,
-    });
-    
-    setIsSending(false);
-    setDialogOpen(false);
+    try {
+      const { error } = await supabase.from('commands').insert([{
+        command_name: command,
+        payload: JSON.parse(JSON.stringify(payload)),
+        status: 'pending',
+      }]);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Command Sent',
+        description: `${command.replace(/_/g, ' ')} command has been sent to the sensor.`,
+      });
+    } catch (error) {
+      console.error('Error sending command:', error);
+      toast({
+        title: 'Command Failed',
+        description: 'Failed to send command. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSending(false);
+      setDialogOpen(false);
+    }
   };
 
   const handleDialogSubmit = () => {
