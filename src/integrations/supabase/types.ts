@@ -14,7 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      commands: {
+        Row: {
+          command_name: string
+          created_at: string
+          id: number
+          payload: Json | null
+          status: string
+        }
+        Insert: {
+          command_name: string
+          created_at?: string
+          id?: number
+          payload?: Json | null
+          status?: string
+        }
+        Update: {
+          command_name?: string
+          created_at?: string
+          id?: number
+          payload?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
+      sensor_readings: {
+        Row: {
+          battery_pct: number | null
+          created_at: string
+          device_id: string
+          flood_status: string
+          id: number
+          lat: number
+          lng: number
+          recorded_at: string
+          signal_rssi: number | null
+          tds: number
+          temperature: number
+          water_level: number
+        }
+        Insert: {
+          battery_pct?: number | null
+          created_at?: string
+          device_id?: string
+          flood_status?: string
+          id?: number
+          lat: number
+          lng: number
+          recorded_at?: string
+          signal_rssi?: number | null
+          tds: number
+          temperature: number
+          water_level: number
+        }
+        Update: {
+          battery_pct?: number | null
+          created_at?: string
+          device_id?: string
+          flood_status?: string
+          id?: number
+          lat?: number
+          lng?: number
+          recorded_at?: string
+          signal_rssi?: number | null
+          tds?: number
+          temperature?: number
+          water_level?: number
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          calibration_offset: number
+          flood_height: number
+          id: number
+          update_interval: number
+          updated_at: string
+        }
+        Insert: {
+          calibration_offset?: number
+          flood_height?: number
+          id?: number
+          update_interval?: number
+          updated_at?: string
+        }
+        Update: {
+          calibration_offset?: number
+          flood_height?: number
+          id?: number
+          update_interval?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
