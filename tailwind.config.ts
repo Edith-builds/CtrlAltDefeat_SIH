@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['IBM Plex Sans', 'system-ui', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,35 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        water: {
+          DEFAULT: "hsl(var(--water-blue))",
+          light: "hsl(var(--water-blue-light))",
+        },
+        temp: {
+          DEFAULT: "hsl(var(--temp-orange))",
+          light: "hsl(var(--temp-orange-light))",
+        },
+        tds: {
+          DEFAULT: "hsl(var(--tds-purple))",
+          light: "hsl(var(--tds-purple-light))",
+        },
+        gps: {
+          DEFAULT: "hsl(var(--gps-green))",
+          light: "hsl(var(--gps-green-light))",
+        },
+        status: {
+          safe: "hsl(var(--status-safe))",
+          "safe-bg": "hsl(var(--status-safe-bg))",
+          warning: "hsl(var(--status-warning))",
+          "warning-bg": "hsl(var(--status-warning-bg))",
+          danger: "hsl(var(--status-danger))",
+          "danger-bg": "hsl(var(--status-danger-bg))",
+        },
+        chart: {
+          water: "hsl(var(--chart-water))",
+          temp: "hsl(var(--chart-temp))",
+          tds: "hsl(var(--chart-tds))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +98,27 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        pulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        float: "float 3s ease-in-out infinite",
       },
     },
   },
