@@ -1,7 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { MapPin, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 interface MapPanelProps {
@@ -9,20 +9,46 @@ interface MapPanelProps {
   lng: number;
 }
 
-// Custom marker icon
-const customIcon = new Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+// Fix Leaflet default marker icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
 });
 
 export const MapPanel = ({ lat, lng }: MapPanelProps) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
   const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-  
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    // Initialize map
+    const map = L.map(mapRef.current).setView([lat, lng], 13);
+    mapInstanceRef.current = map;
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Add marker
+    const marker = L.marker([lat, lng]).addTo(map);
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <strong>Sensor Station #12</strong><br/>
+        <span style="font-family: monospace; font-size: 12px;">${lat.toFixed(6)}°N, ${lng.toFixed(6)}°E</span>
+      </div>
+    `);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, [lat, lng]);
+
   return (
     <div className="chart-container">
       <div className="flex items-center justify-between mb-4">
@@ -41,28 +67,7 @@ export const MapPanel = ({ lat, lng }: MapPanelProps) => {
       </div>
 
       {/* Interactive Map */}
-      <div className="relative rounded-lg overflow-hidden h-48">
-        <MapContainer
-          center={[lat, lng]}
-          zoom={13}
-          scrollWheelZoom={false}
-          style={{ height: '100%', width: '100%' }}
-          className="rounded-lg z-0"
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[lat, lng]} icon={customIcon}>
-            <Popup>
-              <div className="text-sm">
-                <p className="font-semibold">Sensor Station #12</p>
-                <p className="font-mono text-xs">{lat.toFixed(6)}°N, {lng.toFixed(6)}°E</p>
-              </div>
-            </Popup>
-          </Marker>
-        </MapContainer>
-      </div>
+      <div ref={mapRef} className="rounded-lg overflow-hidden h-48 z-0" />
 
       {/* Location Details */}
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
