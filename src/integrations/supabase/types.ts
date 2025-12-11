@@ -14,10 +14,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      command_results: {
+        Row: {
+          command: string
+          created_at: string
+          id: string
+          result: Json | null
+        }
+        Insert: {
+          command: string
+          created_at?: string
+          id?: string
+          result?: Json | null
+        }
+        Update: {
+          command?: string
+          created_at?: string
+          id?: string
+          result?: Json | null
+        }
+        Relationships: []
+      }
       commands: {
         Row: {
           command_name: string
           created_at: string
+          device_id: string | null
           id: number
           payload: Json | null
           status: string
@@ -25,6 +47,7 @@ export type Database = {
         Insert: {
           command_name: string
           created_at?: string
+          device_id?: string | null
           id?: number
           payload?: Json | null
           status?: string
@@ -32,9 +55,40 @@ export type Database = {
         Update: {
           command_name?: string
           created_at?: string
+          device_id?: string | null
           id?: number
           payload?: Json | null
           status?: string
+        }
+        Relationships: []
+      }
+      devices: {
+        Row: {
+          created_at: string | null
+          device_id: string
+          id: string
+          ip_address: string | null
+          label: string | null
+          last_seen: string | null
+          meta: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_id: string
+          id?: string
+          ip_address?: string | null
+          label?: string | null
+          last_seen?: string | null
+          meta?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          device_id?: string
+          id?: string
+          ip_address?: string | null
+          label?: string | null
+          last_seen?: string | null
+          meta?: Json | null
         }
         Relationships: []
       }
