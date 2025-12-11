@@ -98,12 +98,13 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
       {/* Sidebar */}
       <div className={cn(
         'fixed left-0 top-0 h-full bg-sidebar z-40 transition-all duration-300 shadow-xl',
-        isOpen ? 'w-64' : 'w-16'
+        isOpen ? 'w-64' : 'w-16',
+        'hidden md:block'
       )}>
-        {/* Toggle Button */}
+        {/* Toggle Button - Higher z-index */}
         <button
           onClick={onToggle}
-          className="absolute -right-3 top-20 bg-sidebar-primary text-sidebar-primary-foreground p-1.5 rounded-full shadow-lg hover:scale-110 transition-transform"
+          className="absolute -right-3 top-20 bg-sidebar-primary text-sidebar-primary-foreground p-1.5 rounded-full shadow-lg hover:scale-110 transition-transform z-[60]"
         >
           {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -159,6 +160,23 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Mobile Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-40 md:hidden">
+        <nav className="flex justify-around py-2">
+          {commands.slice(0, 5).map((cmd) => (
+            <button
+              key={cmd.id}
+              onClick={() => handleCommandClick(cmd.id)}
+              className="flex flex-col items-center gap-1 p-2 text-sidebar-foreground hover:text-sidebar-primary transition-colors"
+              disabled={isSending}
+            >
+              <cmd.icon className="h-5 w-5" />
+              <span className="text-[10px]">{cmd.name.split(' ')[0]}</span>
+            </button>
+          ))}
+        </nav>
       </div>
 
       {/* Dialog for inputs */}

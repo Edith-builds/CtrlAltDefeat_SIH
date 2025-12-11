@@ -62,6 +62,39 @@ export type Database = {
         }
         Relationships: []
       }
+      deployment_locations: {
+        Row: {
+          created_at: string
+          device_id: string
+          district: string
+          id: string
+          river_name: string
+          state: string
+          station_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          district: string
+          id?: string
+          river_name: string
+          state: string
+          station_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          district?: string
+          id?: string
+          river_name?: string
+          state?: string
+          station_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           created_at: string | null

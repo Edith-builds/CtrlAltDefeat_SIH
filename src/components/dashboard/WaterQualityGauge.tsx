@@ -37,10 +37,13 @@ export const WaterQualityGauge = ({ tds }: WaterQualityGaugeProps) => {
   
   // Calculate gauge position (0-900 ppm range)
   const percentage = Math.min((tds / 900) * 100, 100);
-  const rotation = (percentage / 100) * 180 - 90;
+  const rotation = (percentage / 100) * 180 - 90; // -90 to 90 degrees
+
+  // Tick marks for speedometer
+  const tickMarks = Array.from({ length: 10 }, (_, i) => i);
 
   return (
-    <div className="sensor-card bg-card">
+    <div className="sensor-card bg-card h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Water Quality Index
@@ -54,37 +57,113 @@ export const WaterQualityGauge = ({ tds }: WaterQualityGaugeProps) => {
         </span>
       </div>
 
-      {/* Gauge */}
-      <div className="relative flex justify-center mb-4">
-        <div className="relative w-40 h-20 overflow-hidden">
-          {/* Background arc */}
-          <div className="absolute bottom-0 left-0 right-0 h-40 rounded-t-full border-[12px] border-muted" 
-               style={{ clipPath: 'polygon(0 50%, 100% 50%, 100% 100%, 0 100%)' }} />
-          
-          {/* Colored segments */}
-          <div className="absolute bottom-0 left-0 right-0 h-40">
-            <div className="absolute bottom-0 left-0 right-0 h-40 rounded-t-full border-[12px] border-transparent"
-                 style={{
-                   borderTopColor: 'hsl(var(--status-safe))',
-                   borderLeftColor: 'hsl(var(--status-safe))',
-                   transform: 'rotate(-90deg)',
-                   clipPath: 'polygon(0 0, 33% 0, 33% 100%, 0 100%)',
-                 }} />
-          </div>
+      {/* Speedometer Gauge */}
+      <div className="relative flex justify-center items-center flex-1 min-h-[160px]">
+        <div className="relative w-48 h-24">
+          {/* Outer arc background */}
+          <svg
+            viewBox="0 0 200 110"
+            className="w-full h-full"
+          >
+            {/* Background arc */}
+            <path
+              d="M 20 100 A 80 80 0 0 1 180 100"
+              fill="none"
+              stroke="hsl(var(--muted))"
+              strokeWidth="16"
+              strokeLinecap="round"
+            />
+            
+            {/* Green zone (0-300 ppm = 0-33%) */}
+            <path
+              d="M 20 100 A 80 80 0 0 1 53.3 34.5"
+              fill="none"
+              stroke="hsl(var(--status-safe))"
+              strokeWidth="16"
+              strokeLinecap="round"
+            />
+            
+            {/* Yellow zone (300-600 ppm = 33-66%) */}
+            <path
+              d="M 53.3 34.5 A 80 80 0 0 1 146.7 34.5"
+              fill="none"
+              stroke="hsl(var(--status-warning))"
+              strokeWidth="16"
+            />
+            
+            {/* Red zone (600-900 ppm = 66-100%) */}
+            <path
+              d="M 146.7 34.5 A 80 80 0 0 1 180 100"
+              fill="none"
+              stroke="hsl(var(--status-danger))"
+              strokeWidth="16"
+              strokeLinecap="round"
+            />
 
-          {/* Needle */}
-          <div 
-            className="absolute bottom-0 left-1/2 h-16 w-1 bg-foreground rounded-full origin-bottom transition-transform duration-700"
-            style={{ transform: `translateX(-50%) rotate(${rotation}deg)` }}
-          />
-          
-          {/* Center dot */}
-          <div className="absolute bottom-0 left-1/2 w-4 h-4 rounded-full bg-foreground -translate-x-1/2 translate-y-1/2" />
+            {/* Tick marks */}
+            {tickMarks.map((i) => {
+              const angle = -180 + (i * 20);
+              const rad = (angle * Math.PI) / 180;
+              const innerR = 62;
+              const outerR = 72;
+              const x1 = 100 + innerR * Math.cos(rad);
+              const y1 = 100 + innerR * Math.sin(rad);
+              const x2 = 100 + outerR * Math.cos(rad);
+              const y2 = 100 + outerR * Math.sin(rad);
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="hsl(var(--foreground))"
+                  strokeWidth="2"
+                  opacity="0.5"
+                />
+              );
+            })}
+
+            {/* Needle */}
+            <g
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transformOrigin: '100px 100px',
+                transition: 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+            >
+              {/* Needle body */}
+              <polygon
+                points="100,30 95,100 105,100"
+                fill="hsl(var(--foreground))"
+              />
+              {/* Needle shadow for depth */}
+              <polygon
+                points="100,35 97,100 100,100"
+                fill="hsl(var(--foreground))"
+                opacity="0.7"
+              />
+            </g>
+
+            {/* Center cap */}
+            <circle
+              cx="100"
+              cy="100"
+              r="12"
+              fill="hsl(var(--foreground))"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="8"
+              fill="hsl(var(--muted))"
+            />
+          </svg>
         </div>
       </div>
 
       {/* Value display */}
-      <div className="text-center">
+      <div className="text-center mt-2">
         <span className="text-3xl font-bold font-mono text-foreground">{tds}</span>
         <span className="text-lg text-muted-foreground ml-1">ppm</span>
         <p className={cn('text-sm mt-1', config.color)}>{config.description}</p>

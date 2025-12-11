@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 
 const Index = () => {
   const { isDarkMode, toggleTheme } = useTheme();
-  const { currentData, historicalData, isConnected, isSimulated, lastUpdated } = useSensorData(3000);
+  const { currentData, historicalData, isConnected, lastUpdated } = useSensorData(3000);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const pollutionLevel = getPollutionLevel(currentData.tds);
@@ -29,19 +29,24 @@ const Index = () => {
       <CommandSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
       {/* Main Content */}
-      <div className={cn('flex-1 flex flex-col transition-all duration-300', sidebarOpen ? 'ml-64' : 'ml-16')}>
+      <div className={cn(
+        'flex-1 flex flex-col transition-all duration-300',
+        'md:ml-16',
+        sidebarOpen ? 'md:ml-64' : 'md:ml-16',
+        'pb-20 md:pb-0'
+      )}>
         {/* Header */}
         <Header
           isDarkMode={isDarkMode}
           toggleTheme={toggleTheme}
           isConnected={isConnected}
-          isSimulated={isSimulated}
-          lastUpdated={lastUpdated}
+          isSimulated={false}
+          lastUpdated={lastUpdated ?? new Date()}
           onSettingsClick={() => {}}
         />
 
         {/* Main Dashboard Content */}
-        <main className="flex-1 container mx-auto px-4 py-6 space-y-6">
+        <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
           {/* Flood Status Alert */}
           <section className="animate-slide-up">
             <FloodStatusCard
@@ -50,8 +55,8 @@ const Index = () => {
             />
           </section>
 
-          {/* Sensor Cards Grid */}
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ animationDelay: '0.1s' }}>
+          {/* Sensor Cards Grid - Equal height */}
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" style={{ animationDelay: '0.1s' }}>
             <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
               <SensorCard
                 title="Water Level"
@@ -111,7 +116,7 @@ const Index = () => {
                   href={`https://www.google.com/maps?q=${currentData.lat},${currentData.lng}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center text-sm text-primary hover:underline"
+                  className="mt-3 inline-flex items-center text-xs sm:text-sm text-primary hover:underline"
                 >
                   View on map →
                 </a>
@@ -119,25 +124,25 @@ const Index = () => {
             </div>
           </section>
 
-          {/* Charts Row */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          {/* Charts Row - Equal height */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="animate-slide-up min-h-[360px]" style={{ animationDelay: '0.3s' }}>
               <WaterLevelChart data={historicalData} />
             </div>
-            <div className="animate-slide-up" style={{ animationDelay: '0.35s' }}>
+            <div className="animate-slide-up min-h-[360px]" style={{ animationDelay: '0.35s' }}>
               <TempTdsChart data={historicalData} />
             </div>
           </section>
 
           {/* Bottom Row - Map, Quality Gauge, Event Log */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
               <MapPanel lat={currentData.lat} lng={currentData.lng} />
             </div>
             <div className="animate-slide-up" style={{ animationDelay: '0.45s' }}>
               <WaterQualityGauge tds={currentData.tds} />
             </div>
-            <div className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
+            <div className="animate-slide-up md:col-span-2 lg:col-span-1" style={{ animationDelay: '0.5s' }}>
               <EventLog />
             </div>
           </section>
@@ -147,7 +152,7 @@ const Index = () => {
         <StatusFooter
           batteryPct={currentData.batteryPct}
           signalRssi={currentData.signalRssi}
-          lastSync={lastUpdated}
+          lastSync={lastUpdated ?? new Date()}
         />
       </div>
     </div>

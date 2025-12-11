@@ -30,30 +30,30 @@ export const SensorCard = ({
   children,
 }: SensorCardProps) => {
   return (
-    <div className={cn('sensor-card bg-card', bgClass)}>
-      <div className="flex items-center justify-between mb-4">
-        <div className={cn('p-2 rounded-lg', colorClass.replace('text-', 'bg-') + '/15')}>
-          <Icon className={cn('h-6 w-6', colorClass)} />
+    <div className={cn('sensor-card bg-card h-full flex flex-col', bgClass)}>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className={cn('p-1.5 sm:p-2 rounded-lg', colorClass.replace('text-', 'bg-') + '/15')}>
+          <Icon className={cn('h-4 w-4 sm:h-6 sm:w-6', colorClass)} />
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </span>
       </div>
       
-      <div className="mb-2">
-        <span className="text-3xl font-bold text-foreground font-mono">
+      <div className="mb-2 flex-1">
+        <span className="text-xl sm:text-3xl font-bold text-foreground font-mono">
           {value}
         </span>
-        <span className="text-lg text-muted-foreground ml-1">{unit}</span>
+        <span className="text-sm sm:text-lg text-muted-foreground ml-1">{unit}</span>
       </div>
       
       {subtitle && (
-        <p className="text-sm text-muted-foreground mb-3">{subtitle}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">{subtitle}</p>
       )}
       
       {progress && (
-        <div className="mt-4">
-          <div className="h-2 rounded-full bg-muted overflow-hidden">
+        <div className="mt-auto">
+          <div className="h-1.5 sm:h-2 rounded-full bg-muted overflow-hidden">
             <div
               className={cn('h-full rounded-full transition-all duration-700', progress.colorClass)}
               style={{ width: `${Math.min((progress.value / progress.max) * 100, 100)}%` }}
