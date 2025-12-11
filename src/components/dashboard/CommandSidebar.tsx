@@ -10,6 +10,7 @@ import {
   Send,
   AlertTriangle,
 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
@@ -30,6 +32,7 @@ interface CommandSidebarProps {
   onToggle: () => void;
 }
 
+// All available commands shown in UI
 const commands = [
   { id: 'instant_report', name: 'Instant Report', icon: FileText, description: 'Request immediate sensor reading' },
   { id: 'set_flood_height', name: 'Set Flood Height', icon: Gauge, description: 'Configure flood threshold' },
@@ -38,37 +41,62 @@ const commands = [
   { id: 'set_interval', name: 'Time Interval', icon: Clock, description: 'Set report interval' },
 ];
 
+//
+// ⭐ NEW: Unified command sender (used by sendCommand below)
+//
+export async function sendCommandToDevice(
+  device_id: string,
+  command_name: string,
+  payload: Record<string, unknown> = {}
+) {
+  const { data, error } = await supabase
+    .from("commands")
+    .insert([
+      {
+        device_id,
+        command_name,
+        payload,
+        status: "pending",
+      },
+    ]);
+
+  if (error) throw error;
+  return data;
+}
+
 export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCommand, setSelectedCommand] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  //
+  // Handle clicking a command in list
+  //
   const handleCommandClick = (commandId: string) => {
+    // Commands that need user input
     if (commandId === 'set_flood_height' || commandId === 'set_interval') {
       setSelectedCommand(commandId);
       setInputValue('');
       setDialogOpen(true);
     } else {
+      // Fire immediately
       sendCommand(commandId, {});
     }
   };
 
+  //
+  // ⭐ Replaces your old sendCommand — now uses unified sendCommandToDevice()
+  //
   const sendCommand = async (command: string, payload: Record<string, unknown>) => {
     setIsSending(true);
-    
-    try {
-      const { error } = await supabase.from('commands').insert([{
-        command_name: command,
-        payload: JSON.parse(JSON.stringify(payload)),
-        status: 'pending',
-      }]);
 
-      if (error) throw error;
+    try {
+      await sendCommandToDevice("station-1", command, payload);
 
       toast({
         title: 'Command Sent',
-        description: `${command.replace(/_/g, ' ')} command has been sent to the sensor.`,
+        description: `${command.replace(/_/g, ' ')} command has been sent to the device.`,
       });
     } catch (error) {
       console.error('Error sending command:', error);
@@ -83,13 +111,17 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
     }
   };
 
+  //
+  // Dialog Submit Handler
+  //
   const handleDialogSubmit = () => {
     if (!selectedCommand) return;
-    
-    const payload = selectedCommand === 'set_flood_height'
-      ? { threshold: parseInt(inputValue) }
-      : { interval: parseInt(inputValue) * 1000 };
-    
+
+    const payload =
+      selectedCommand === 'set_flood_height'
+        ? { threshold: parseInt(inputValue) }
+        : { interval: parseInt(inputValue) * 1000 }; // seconds → ms
+
     sendCommand(selectedCommand, payload);
   };
 
@@ -101,7 +133,7 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
         isOpen ? 'w-64' : 'w-16',
         'hidden md:block'
       )}>
-        {/* Toggle Button - Higher z-index */}
+        {/* Toggle Button */}
         <button
           onClick={onToggle}
           className="absolute -right-3 top-20 bg-sidebar-primary text-sidebar-primary-foreground p-1.5 rounded-full shadow-lg hover:scale-110 transition-transform z-[60]"
@@ -109,7 +141,7 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
           {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
 
-        {/* Logo Area */}
+        {/* Logo Section */}
         <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-sidebar-primary/20">
@@ -179,12 +211,14 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
         </nav>
       </div>
 
-      {/* Dialog for inputs */}
+      {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedCommand === 'set_flood_height' ? 'Set Flood Height Threshold' : 'Set Update Interval'}
+              {selectedCommand === 'set_flood_height'
+                ? 'Set Flood Height Threshold'
+                : 'Set Update Interval'}
             </DialogTitle>
             <DialogDescription>
               {selectedCommand === 'set_flood_height'
@@ -192,6 +226,7 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
                 : 'Enter the time interval (in seconds) between sensor readings.'}
             </DialogDescription>
           </DialogHeader>
+
           <div className="py-4">
             <Label htmlFor="value">
               {selectedCommand === 'set_flood_height' ? 'Threshold (cm)' : 'Interval (seconds)'}
@@ -205,6 +240,7 @@ export const CommandSidebar = ({ isOpen, onToggle }: CommandSidebarProps) => {
               className="mt-2"
             />
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
